@@ -1,10 +1,22 @@
-from typing import List
+from typing import List, Literal
 
 faixas_comissoes = {
-    1: {"preco_max": 79.99, "taxa_fixa": 4.00, "comissao_percentual": 0.2},
-    2: {"preco_max": 99.99, "taxa_fixa": 16.00, "comissao_percentual": 0.14},
-    3: {"preco_max": 199.99, "taxa_fixa": 20.00, "comissao_percentual": 0.14},
-    4: {"preco_max": 499.99, "taxa_fixa": 26.00, "comissao_percentual": 0.14},
+    "shopee": {
+        1: {"preco_max": 79.99, "taxa_fixa": 4.00, "comissao_percentual": 0.2},
+        2: {"preco_max": 99.99, "taxa_fixa": 16.00, "comissao_percentual": 0.14},
+        3: {"preco_max": 199.99, "taxa_fixa": 20.00, "comissao_percentual": 0.14},
+        4: {"preco_max": 499.99, "taxa_fixa": 26.00, "comissao_percentual": 0.14},
+    },
+    "mercadolivre": {
+        1: {"preco_max": 18.99, "taxa_fixa": 8.93, "comissao_percentual": 0.17},
+        2: {"preco_max": 48.99, "taxa_fixa": 9.93, "comissao_percentual": 0.17},
+        3: {"preco_max": 78.99, "taxa_fixa": 11.64, "comissao_percentual": 0.17},
+        4: {"preco_max": 99.99, "taxa_fixa": 28.90, "comissao_percentual": 0.17},
+        5: {"preco_max": 119.99, "taxa_fixa": 33.70, "comissao_percentual": 0.17},
+        6: {"preco_max": 149.99, "taxa_fixa": 38.50, "comissao_percentual": 0.17},
+        7: {"preco_max": 199.99, "taxa_fixa": 43.30, "comissao_percentual": 0.17},
+        8: {"preco_max": 200, "taxa_fixa": 49.30, "comissao_percentual": 0.17},
+    },
 }
 
 
@@ -38,7 +50,9 @@ def price_generator(
 
     cost_total = cost + cost_commission["fixed_cost"]
 
-    divisor_number = (100 - profit_margin - tax - cost_commission["variable_cost"]) / 100
+    divisor_number = (
+        100 - profit_margin - tax - cost_commission["variable_cost"]
+    ) / 100
 
     price = cost_total / divisor_number
 
@@ -69,11 +83,18 @@ def get_divisor(variables: List[float]) -> float:
     return 1 - variables_in_percentage
 
 
-def calculate_commission_range(variables: List[float]):
+def calculate_commission_range(variables: List[float], marketplace="shopee"):
     commission_range_calculations = {}
 
-    for key, range_info in faixas_comissoes.items():
-        variables_with_commission = variables + [range_info["comissao_percentual"] * 100]
+    faixa_comissoes_marketplace = faixas_comissoes.get(marketplace)
+
+    if not faixa_comissoes_marketplace:
+        return None
+
+    for key, range_info in faixa_comissoes_marketplace.items():
+        variables_with_commission = variables + [
+            range_info["comissao_percentual"] * 100
+        ]
         divisor = get_divisor(variables_with_commission)
 
         preco_max = range_info["preco_max"]
@@ -93,7 +114,12 @@ def calculate_commission_range(variables: List[float]):
 
 
 def calculate_price(
-    cost_price: float, multiplier: float, profit_margin: float, discount: float = 23.5, imposto=5.00
+    cost_price: float,
+    multiplier: float,
+    profit_margin: float,
+    discount: float = 23.5,
+    imposto=5.00,
+    marketplace: Literal["shopee", "mercadolivre"] = "shopee",
 ) -> float:
 
     last_range = None
@@ -102,7 +128,10 @@ def calculate_price(
 
     variables = [imposto, profit_margin]
 
-    commission_ranges = calculate_commission_range(variables)
+    commission_ranges = calculate_commission_range(variables, marketplace)
+
+    if not commission_ranges:
+        return
 
     for key, value in commission_ranges.items():
         last_range = value
@@ -118,5 +147,6 @@ def calculate_price(
 
         return rounded_number(preco_ideal), round(custo, 2)
     # This should never happen, but as a safety fallback
-    raise ValueError("Custo excede o máximo permitido para todas as faixas de comissão.")
-
+    raise ValueError(
+        "Custo excede o máximo permitido para todas as faixas de comissão."
+    )
