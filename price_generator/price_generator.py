@@ -2,7 +2,7 @@ from typing import List, Literal
 
 faixas_comissoes = {
     "shopee": {
-        1: {"preco_max": 79.99, "taxa_fixa": 4.00, "comissao_percentual": 0.2},
+        1: {"preco_max": 79.99, "taxa_fixa": 4.50, "comissao_percentual": 0.2},
         2: {"preco_max": 99.99, "taxa_fixa": 16.00, "comissao_percentual": 0.14},
         3: {"preco_max": 199.99, "taxa_fixa": 20.00, "comissao_percentual": 0.14},
         4: {"preco_max": 499.99, "taxa_fixa": 26.00, "comissao_percentual": 0.14},
