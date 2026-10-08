@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "price-generator"
+version = "0.1.0"
+description = "Utilitários para cálculo de custo e preço de venda em marketplaces"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "Gabriel Malta" }
+]
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["price_generator*"]
